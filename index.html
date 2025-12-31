@@ -44,13 +44,6 @@ h2 {padding:0 20px; line-height:1.5em;}
   <input id="username" placeholder="Your Name">    
   <button onclick="checkName()">Next</button>    
 </div>    
-
-<!-- Verification Screen -->  
-<div id="verification" class="screen">  
-  <h2>Verification Required 🛡️</h2>  
-  <input id="verifyInput" placeholder="Type the secret phrase">  
-  <button onclick="checkVerification()">Verify</button>  
-</div>    
     
 <!-- Ariba Pages Container -->    
 <div id="aribaPages" class="screen"></div>    
@@ -116,27 +109,24 @@ animate();
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active');}    
 function goName(){ show('name'); }    
     
-// Name Check    
+// Name Check + Verification    
 function checkName(){    
   let name=document.getElementById('username').value.toLowerCase().trim();    
   if(name==='ariba'){ 
-    show('verification'); // show verification input  
-  }else{ show('giftScreen'); }    
-}    
-
-// Verification Check  
-function checkVerification(){  
-  let phrase=document.getElementById('verifyInput').value.trim().toLowerCase();  
-  if(phrase==='aweee mera bacha'){  
-    startAribaFlow();  
-  } else {  
-    alert("u aint my Didi gtfo 🖕");  
-  }  
+    let verification = prompt("Verification required: type the secret phrase"); // verification step
+    if(verification && verification.toLowerCase().trim() === "aweee mera bacha") {
+        startAribaFlow(); // correct → continue
+    } else {
+        alert("u aint my Didi gtfo 🖕"); // wrong → stop
+    }
+  } else { 
+    show('giftScreen'); 
+  }    
 }    
     
 // ARIBA FLOW    
 const aribaMessages=[    
-  "Is it actually you?",  // changed first message  
+  "Is it actually you?",  // first message changed
   "I really love you ❤️‍🩹",    
   "You’re the best 🥰",    
   "You kinda understood me like no one ever did 😌",    
