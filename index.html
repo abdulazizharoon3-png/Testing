@@ -9,8 +9,8 @@
 html,body{
   margin:0; padding:0; overflow:hidden;
   height:100%; width:100%;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:radial-gradient(circle at top,#1a1a2e,#0c0c0c);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at top,#1b1b3a,#0c0c0c);
   color:white;
 }
 .screen{
@@ -19,7 +19,7 @@ html,body{
   justify-content:center; align-items:center;
   opacity:0; pointer-events:none;
   transform:scale(0.96);
-  transition:opacity .9s ease,transform .9s ease;
+  transition:opacity .8s ease,transform .8s ease;
 }
 .screen.active{opacity:1;pointer-events:auto;transform:scale(1);}
 h1,h2{
@@ -27,7 +27,6 @@ h1,h2{
   text-align:center;
   line-height:1.5;
 }
-h2{font-size:1.3rem;}
 button{
   margin-top:28px;
   padding:14px 36px;
@@ -51,27 +50,11 @@ input{
   color:white;
   text-align:center;
 }
-canvas{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-}
-#giftIcon{
-  font-size:64px;
-  animation:float 2s ease-in-out infinite;
-  cursor:pointer;
-}
-@keyframes float{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-16px);}
-}
-.fadeText{
-  opacity:0;
-  animation:fadeUp 1.2s ease forwards;
-}
-@keyframes fadeUp{
-  to{opacity:1;transform:translateY(-6px);}
-}
+canvas{position:absolute;inset:0;pointer-events:none;}
+#giftIcon{font-size:64px;animation:float 2s ease-in-out infinite;cursor:pointer;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+.fade{opacity:0;animation:fadeIn 1s ease forwards;}
+@keyframes fadeIn{to{opacity:1;}}
 </style>
 </head>
 
@@ -80,12 +63,12 @@ canvas{
 <canvas id="fx"></canvas>
 
 <div id="start" class="screen active">
-  <h1 class="fadeText">🎉 Ready for a Surprise?</h1>
-  <button class="show" onclick="goName()">Start</button>
+  <h1 class="fade">🎉 Ready for a Surprise?</h1>
+  <button class="show" onclick="show('name')">Start</button>
 </div>
 
 <div id="name" class="screen">
-  <h2 class="fadeText">Enter Your Name 💫</h2>
+  <h2 class="fade">Enter Your Name 💫</h2>
   <input id="username" placeholder="Your Name">
   <button class="show" onclick="checkName()">Next</button>
 </div>
@@ -97,7 +80,7 @@ canvas{
 </div>
 
 <div id="genericFinal" class="screen">
-  <h2 class="fadeText">
+  <h2 class="fade">
 🌟 “As the old year folds its final page, may your heart be lighter and your dreams soar higher.<br><br>
 May laughter follow you like sunlight, and may every step you take in the new year be guided by hope, joy, and unforgettable moments.<br><br>
 Here’s to 365 new chances, countless smiles, and the magic of new beginnings.<br><br>
@@ -106,77 +89,82 @@ Happy New Year! 🎆✨”
 </div>
 
 <script>
-/* ===== Canvas FX ===== */
+/* Canvas FX */
 const canvas=document.getElementById("fx");
 const ctx=canvas.getContext("2d");
-canvas.width=innerWidth;canvas.height=innerHeight;
-
+canvas.width=innerWidth; canvas.height=innerHeight;
 let particles=[];
 function burst(x,y){
-  for(let i=0;i<40;i++){
-    particles.push({
-      x,y,
-      vx:(Math.random()-.5)*4,
-      vy:(Math.random()-.5)*4,
-      life:1,
-      c:`hsl(${Math.random()*360},100%,60%)`
-    });
+  for(let i=0;i<35;i++){
+    particles.push({x,y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,life:1,color:`hsl(${Math.random()*360},100%,60%)`});
   }
 }
-function animate(){
+(function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
-    ctx.fillStyle=p.c;
+    ctx.fillStyle=p.color;
     ctx.globalAlpha=p.life;
     ctx.fillRect(p.x,p.y,3,3);
-    p.x+=p.vx;p.y+=p.vy;p.life-=.02;
+    p.x+=p.vx; p.y+=p.vy; p.life-=0.02;
   });
   particles=particles.filter(p=>p.life>0);
   requestAnimationFrame(animate);
-}
-animate();
+})();
 
-/* ===== Screen helpers ===== */
+/* Messages */
+const aribaMessages=[
+"Didi? 💖",
+"Is it really u? 🥹",
+"I really love you ❤️‍🩹",
+"You’re the best 🥰",
+"You kinda understood me like no one ever did 😌",
+"I felt comfortable around you like I never did around anyone else 💖",
+"The Head Scratch ❤️‍🩹",
+"The Tea Spill 💅",
+"Aapka vo waala message really made me throw my phone 🥹",
+"❤️‍🩹 You see me in ways no one else did, and being around you feels like coming home.",
+"I can laugh with you, cry with you, and feel safe being myself.",
+"You are my favorite bari behn, my safe place, my heart.",
+"Happy New Year Didi ❤️‍🩹🎉"
+];
+
+const habibaMessages=[
+"New Year… but it ain’t gonna be happy for u 💅",
+"Wwwhhhhhaaaaaaaaattttttt?? 💅",
+"Whyyyy u pppreeessssssiinnnggg neeexxxxttttt 🤧",
+"Fine. Tell Ayyanu to wish it to u. Me nai kar raha 😏"
+];
+
+let idx=0,runCount=0,activeMsgs=[],runaway=false;
+
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
-function goName(){show("name");}
-
-/* ===== Flows ===== */
-const aribaMessages=[/* unchanged */];
-const habibaMessages=[/* unchanged */];
-
-let index=0,habibaRun=0;
 
 function checkName(){
   let n=username.value.trim().toLowerCase();
-  if(n==="ariba"){startFlow(aribaMessages,false);}
-  else if(n==="habiba"){startFlow(habibaMessages,true);}
-  else{show("giftScreen");}
+  if(n==="ariba"){activeMsgs=aribaMessages; runaway=false;}
+  else if(n==="habiba"){activeMsgs=habibaMessages; runaway=true;}
+  else{show("giftScreen"); return;}
+  idx=0; runCount=0; show("pages"); renderPage();
 }
 
-function startFlow(arr,runaway){
-  index=0;
-  show("pages");
-  nextPage(arr,runaway);
-}
-
-function nextPage(arr,runaway){
-  const c=document.getElementById("pages");
-  c.innerHTML="";
+function renderPage(){
+  const p=document.getElementById("pages");
+  p.innerHTML="";
   let h=document.createElement("h2");
-  h.className="fadeText";
-  h.innerHTML=arr[index];
-  c.appendChild(h);
+  h.className="fade";
+  h.innerHTML=activeMsgs[idx];
+  p.appendChild(h);
 
   let b=document.createElement("button");
   b.textContent="Next";
-  setTimeout(()=>b.classList.add("show"),1200);
+  setTimeout(()=>b.classList.add("show"),1000);
 
-  if(runaway && habibaRun<3){
+  if(runaway && runCount<3){
     b.onmouseover=()=>{
-      habibaRun++;
+      runCount++;
       b.style.position="absolute";
       b.style.left=Math.random()*70+"%";
       b.style.top=Math.random()*70+"%";
@@ -184,20 +172,14 @@ function nextPage(arr,runaway){
   }
 
   b.onclick=()=>{
-    index++;
     burst(innerWidth/2,innerHeight/2);
-    if(index<arr.length) nextPage(arr,runaway);
-    else if(!runaway) burst(innerWidth/2,innerHeight/3);
+    idx++;
+    if(idx<activeMsgs.length) renderPage();
   };
-
-  c.appendChild(b);
+  p.appendChild(b);
 }
 
-/* ===== Gift ===== */
-giftIcon.onclick=()=>{
-  burst(innerWidth/2,innerHeight/2);
-  setTimeout(()=>show("genericFinal"),900);
-};
+giftIcon.onclick=()=>{burst(innerWidth/2,innerHeight/2);setTimeout(()=>show("genericFinal"),900);}
 </script>
 </body>
 </html>
